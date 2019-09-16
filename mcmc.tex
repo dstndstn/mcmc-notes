@@ -1,0 +1,115 @@
+\pdfobjcompresslevel=1
+\documentclass[compress,t]{beamer}
+
+\usepackage{tikz}
+%\usetikzlibrary{arrows,decorations.pathmorphing,backgrounds,placments,fit}
+\usetikzlibrary{arrows.meta,decorations.pathmorphing,backgrounds,positioning,fit}
+
+\input{header}
+\usefonttheme[onlymath]{serif}
+\usepackage{multimedia} 
+
+\title{Markov Chain Monte Carlo}
+\author{Dustin Lang}
+\date{2019-09-17}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+%\section{Intro}
+
+\begin{frame}{Markov Chain Monte Carlo for data analysis}
+  \only<1>{%
+    \begin{itemize}
+    \item MCMC generates samples from a probability distribution function
+    \item For data analysis: you have some \emph{measurements} $X$, with uncertainties
+    \item have a \emph{model} for the thing you're measuring
+    \item with unknown \emph{parameters} $\theta$
+    \item the model is \emph{generative} -- predicts measurements given parameters
+    \item MCMC can put constraints on the parameters given your measurements
+    \end{itemize}
+  }%
+  \only<2>{%
+    \begin{itemize}
+    \item can think of it as: \emph{model} is a function mapping parameters to observables $t$: $m(\theta) \to t$
+    \item and \emph{measurement process} gives probability of observing $X$ given $t$: $P(X | t)$
+    \item (eg, maybe $P(X | t)$ is a Gaussian with zero mean and standard deviation $\sigma$)
+    \item Then, can chain $P(X | t) = P(X | m(\theta))$
+    \item Usually, we fold $m$ and $P$ together to write $P(X | \theta)$ (notation 
+    \end{itemize}
+  }%
+  \only<3>{%
+    \begin{itemize}
+    \item $P(X | \theta)$ (the ``likelihood'') is not what you want!
+    \item You want $P(\theta | X)$ -- constraints on / measurements of the parameters
+    \item Good thing you're Bayesian!
+    \item ``posterior'' $P(\theta | X) = \frac{P(X | \theta) P(\theta)}{P(X)}$
+    \item $P(\theta)$ is the ``prior''
+    \item $P(X)$ is the ``evidence'', and in this setting is constant (ignored)
+    \end{itemize}
+  }%
+  \only<4>{%
+    \begin{itemize}
+    \item We'll use MCMC to draw samples from the \emph{posterior} probability distribution
+    \item $P(\theta | X) = P(X | \theta) P(\theta)$
+    \item The samples are a set of $\theta$ values drawn from your parameter constraints distribution
+    \end{itemize}
+  }%
+\end{frame}
+
+\begin{frame}{What's in a name}
+  \begin{itemize}
+  \item \emph{Monte Carlo} -- a famous casino in Monaco -- alluding to the use of \emph{randomness} in the algorithm
+  \item \emph{Chain} -- a list (here, a list of samples / steps $\theta_1$, $\theta_2$, $\theta_3$)
+  \item \emph{Markov Chain} -- a list of ``steps'' where the decision to step from $\theta_{i}$ to $\theta_{i+1}$
+    depends only on the value of $\theta_i$
+  \end{itemize}
+
+  \begin{itemize}
+  \item \emph{Metropolis--Hastings} -- first authors of 1953 and 1970 papers (resp) with the simplest, most commonly taught algorithm
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Using MCMC}
+  \begin{itemize}
+  \item ``Just write down the probability distributions''
+  \item hah, the ``model to predictions'' part, $m(\theta) \to t$, can be \emph{very} difficult
+  \item eg, in cosmology, the software \emph{CAMB} does this, in 25,000 lines of FORTRAN
+  \item writing down the \emph{likelihood} might take some work too!
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{MCMC: the idea}
+  \begin{itemize}
+  \item move a ``particle'' or ``walker'' around in the probability space
+  \item choose new parameters according to a \emph{proposal distribution}
+    -- often Gaussian: $\theta_{new} = \theta + \mathcal{N}(0, \Sigma)$
+  \item compute probability at new $\theta_{new}$ and decide whether to move (``jump'') to new parameters
+  \item \emph{always} keep improvements, \emph{sometimes} keep decreases
+  \item in the long run, the set of $\theta$ are your samples
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Finally, M--H MCMC code}
+\begin{verbatim}
+fun MCMC(prob_function, sample_proposal, params, Nsteps):
+    chain = []
+    prob = prob_function(params)
+    for i in 1 to Nsteps:
+        # sample from proposal distribution
+        params_new = sample_proposal(params)
+        prob_new = prob_function(params_new)
+        # accept?
+        if ((prob_new > prob) OR
+            (prob_new / prob) > uniform_random()):
+            params = params_new
+            prob = prob_new
+        chain.append(params)
+    return chain
+\end{verbatim}
+\end{frame}
+
+\end{document}
