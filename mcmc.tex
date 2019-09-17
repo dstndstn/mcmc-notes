@@ -122,9 +122,13 @@ fun MCMC(prob_function, sample_proposal, params, Nsteps):
   \niceurl{https://speakerdeck.com/dfm/data-analysis-with-mcmc}
 \end{frame}
 
+
+% Use example from DanFM:
+%  wget https://speakerd.s3.amazonaws.com/presentations/1cbbeda07de1013062221231381d8c65/vanderbilt.pdf
+% pdfjam vanderbilt.pdf 1-1,31-54 --papersize '{5.04in,3.78in}' -o vanderbilt-sub.pdf
 {
 \setbeamercolor{background canvas}{bg=}
-\includepdf[pages=31-54]{vanderbilt.pdf}
+\includepdf[pages=2-25,fitpaper=true]{vanderbilt-sub.pdf}
 }
 
 \begin{frame}{MCMC: summary}
