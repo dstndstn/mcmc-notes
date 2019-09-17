@@ -1,9 +1,13 @@
 \pdfobjcompresslevel=1
 \documentclass[compress,t]{beamer}
 
+\newcommand{\niceurl}[1]{\mbox{\href{#1}{\textsl{#1}}}}
+
 \usepackage{tikz}
 %\usetikzlibrary{arrows,decorations.pathmorphing,backgrounds,placments,fit}
 \usetikzlibrary{arrows.meta,decorations.pathmorphing,backgrounds,positioning,fit}
+
+\usepackage{pdfpages}
 
 \input{header}
 \usefonttheme[onlymath]{serif}
@@ -38,13 +42,13 @@
     \item and \emph{measurement process} gives probability of observing $X$ given $t$: $P(X | t)$
     \item (eg, maybe $P(X | t)$ is a Gaussian with zero mean and standard deviation $\sigma$)
     \item Then, can chain $P(X | t) = P(X | m(\theta))$
-    \item Usually, we fold $m$ and $P$ together to write $P(X | \theta)$ (notation 
+    \item Usually, we fold $m$ and $P$ together to write $P(X | \theta)$
     \end{itemize}
   }%
   \only<3>{%
     \begin{itemize}
     \item $P(X | \theta)$ (the ``likelihood'') is not what you want!
-    \item You want $P(\theta | X)$ -- constraints on / measurements of the parameters
+    \item You want $P(\theta | X)$ -- the ``posterior'' -- constraints on / measurements of the parameters
     \item Good thing you're Bayesian!
     \item ``posterior'' $P(\theta | X) = \frac{P(X | \theta) P(\theta)}{P(X)}$
     \item $P(\theta)$ is the ``prior''
@@ -84,12 +88,13 @@
 
 \begin{frame}{MCMC: the idea}
   \begin{itemize}
-  \item move a ``particle'' or ``walker'' around in the probability space
+  \item move a ``particle'' or ``walker'' around in the parameter space $\theta$, based on the value of the
+    probability function \\ (for us: the posterior probability $P(\theta | X)$)
   \item choose new parameters according to a \emph{proposal distribution}
     -- often Gaussian: $\theta_{new} = \theta + \mathcal{N}(0, \Sigma)$
   \item compute probability at new $\theta_{new}$ and decide whether to move (``jump'') to new parameters
   \item \emph{always} keep improvements, \emph{sometimes} keep decreases
-  \item in the long run, the set of $\theta$ are your samples
+  \item in the long run, the set of walker positions $\{ \theta_1, \theta_2, \theta_3, ... \}$ are your samples
   \end{itemize}
 \end{frame}
 
@@ -110,6 +115,33 @@ fun MCMC(prob_function, sample_proposal, params, Nsteps):
         chain.append(params)
     return chain
 \end{verbatim}
+\end{frame}
+
+\begin{frame}{Demo}
+  Credit: Dan Foreman--Mackey
+  \niceurl{https://speakerdeck.com/dfm/data-analysis-with-mcmc}
+\end{frame}
+
+{
+\setbeamercolor{background canvas}{bg=}
+\includepdf[pages=31-54]{vanderbilt.pdf}
+}
+
+\begin{frame}{MCMC: summary}
+  Things MCMC can do for you
+  \begin{itemize}
+  \item produce constraints on model parameters, including covariances
+  \item include (but ignore) \emph{nuisance parameters} in your data analysis
+  \end{itemize}
+  
+  Things MCMC doesn't do for you
+  \begin{itemize}
+  \item tell you if it has converged!
+  \item tell you if your model is good
+  \item (easily) allow comparisons between models
+  \item handle multi-modal distributions (try \emph{nested sampling})
+  \item Dan Foreman--Mackey has good notes on \href{https://github.com/LSSTC-DSFP/LSSTC-DSFP-Sessions/blob/master/Session10/Day2/AdvancedSampling.ipynb}{\alert{advanced sampling methods}}
+  \end{itemize}
 \end{frame}
 
 \end{document}
